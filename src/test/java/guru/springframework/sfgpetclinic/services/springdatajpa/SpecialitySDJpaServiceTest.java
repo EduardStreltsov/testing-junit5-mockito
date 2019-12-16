@@ -13,6 +13,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.never;
@@ -42,9 +44,30 @@ class SpecialitySDJpaServiceTest {
     }
     
     @Test
+    void findByIdBDD() {
+        Speciality speciality = new Speciality();
+        
+        given(specialtyRepository.findById(anyLong())).willReturn(Optional.of(speciality));
+        
+        Speciality foundSpeciality = service.findById(1L);
+        
+        assertThat(foundSpeciality).isNotNull();
+        
+        then(specialtyRepository).should().findById(anyLong());
+        then(specialtyRepository).should(times(1)).findById(anyLong());
+        then(specialtyRepository).shouldHaveNoMoreInteractions();
+    }
+    
+    @Test
     void deleteByIdVariants() {
+        // given - none
+        
+        // when
         service.deleteById(1L);
         service.deleteById(1L);
+        
+        // then
+        then(specialtyRepository).should(times(2)).deleteById(anyLong());
         
         verify(specialtyRepository, times(2)).deleteById(1L);
         verify(specialtyRepository, atLeastOnce()).deleteById(1L);
@@ -54,6 +77,7 @@ class SpecialitySDJpaServiceTest {
 
     @Test
     void delete() {
+        
         service.delete(new Speciality());
         
         verify(specialtyRepository).delete(any(Speciality.class));
