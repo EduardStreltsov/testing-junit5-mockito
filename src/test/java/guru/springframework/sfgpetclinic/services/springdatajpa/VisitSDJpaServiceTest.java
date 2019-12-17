@@ -15,8 +15,8 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 @ExtendWith(MockitoExtension.class)
 class VisitSDJpaServiceTest {
@@ -29,55 +29,71 @@ class VisitSDJpaServiceTest {
 	
 	@Test
 	void findAll() {
+		// given
 		Set<Visit> visits = new HashSet<>();
 		visits.add(new Visit());
+		given(repository.findAll()).willReturn(visits);
 		
-		when(repository.findAll()).thenReturn(visits);
-		
+		// when
 		Set<Visit> foundVisits = service.findAll();
 		
-		verify(repository).findAll();
-		
+		// then
 		assertThat(foundVisits).hasSize(1);
+		then(repository).should().findAll();
+		then(repository).shouldHaveNoMoreInteractions();
 	}
 	
 	@Test
 	void findById() {
 		
-		when(repository.findById(anyLong())).thenReturn(Optional.of(new Visit()));
+		given(repository.findById(anyLong())).willReturn(Optional.of(new Visit()));
 		
+		// when
 		Visit found = service.findById(anyLong());
+		
+		// then
 		assertThat(found).isNotNull();
-		
-		verify(repository).findById(anyLong());
-		
+		then(repository).should().findById(anyLong());
+		then(repository).shouldHaveNoMoreInteractions();
 	}
 	
 	@Test
 	void save() {
 		
+		// given
 		Visit visit = new Visit();
-		when(repository.save(any(Visit.class))).thenReturn(visit);
+		given(repository.save(any(Visit.class))).willReturn(visit);
 		
+		// when
 		Visit saved = service.save(visit);
 		
+		// then
 		assertThat(saved).isNotNull();
-		
-		verify(repository).save(any(Visit.class));
+		then(repository).should().save(any(Visit.class));
+		then(repository).shouldHaveNoMoreInteractions();
 	}
 	
 	@Test
 	void delete() {
+		// given
 		Visit visit = new Visit();
+		
+		// when
 		service.delete(visit);
-		verify(repository).delete(any(Visit.class));
+		
+		// then
+		then(repository).should().delete(any(Visit.class));
+		then(repository).shouldHaveNoMoreInteractions();
 	}
 	
 	@Test
 	void deleteById() {
-		Visit visit = new Visit();
+		// given - none
+		
+		// when
 		service.deleteById(anyLong());
-		verify(repository).deleteById(anyLong());
-	
+		
+		// then
+		then(repository).should().deleteById(anyLong());
 	}
 }
